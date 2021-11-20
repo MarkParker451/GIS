@@ -1,0 +1,36 @@
+---
+title: "GIS"
+author: "MP"
+date: "20/11/2021"
+output: html_document
+---
+
+# SETUP
+## Attach packages
+```{r}
+library(osrm)
+library(ggplot2)
+```
+
+
+## Define constants 
+```{r}
+pier_coords <- c(51.533215, 0.716192)
+
+pier_iso <- osrmIsochrone(loc = pier_coords,
+                          breaks = seq(from = 10,to = 20, by = 10),
+                          res = 300,
+                          returnclass = "sf", 
+                          osrm.profile = "walk")
+```
+
+
+```{r}
+map_iso_pier <- ggplot() +
+  geom_s
+```
+
+
+
+
+
