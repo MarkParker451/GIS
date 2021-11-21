@@ -4,31 +4,83 @@ author: "MP"
 date: "20/11/2021"
 output: html_document
 ---
+# PURPOSE
+Worked example using the OSRM package to calculate distance and travel time, then ggplot to map the results.
+
 
 # SETUP
 ## Attach packages
 ```{r}
 library(osrm)
 library(ggplot2)
+library(ggspatial)
+library(tidyr)
+library(sf)
+library(dplyr)
 ```
 
 
 ## Define constants 
+It's important to note here that co-ords c&p from Google are lat/long, whereas osrm wants long/lat 
 ```{r}
-pier_coords <- c(51.533215, 0.716192)
-
-pier_iso <- osrmIsochrone(loc = pier_coords,
-                          breaks = seq(from = 10,to = 20, by = 10),
-                          res = 300,
-                          returnclass = "sf", 
-                          osrm.profile = "walk")
+coords_victoria_house <- c(0.19433553692634412,52.18514306078607)
 ```
 
 
+
+
+# VISUALISE
+## Isometric (equal distance) from Victoria House by road
+### Calculate
 ```{r}
-map_iso_pier <- ggplot() +
-  geom_s
+isometric_iph <- osrmIsometric(loc = coords_victoria_house,breaks = c(1000,2000))
 ```
+
+
+# Map
+```{r}
+# I'd like the distances to display on the legend as two discrete values, so factorise them
+iso_2_map <- isometric_iph %>% 
+  mutate(max = factor(max))
+
+map_iph_isometric <- ggplot(iso_2_map) +
+  annotation_map_tile("cartolight") +
+  geom_sf(aes(geometry = geometry, fill = max),alpha = 0.1) +
+  scale_fill_discrete(name = "Distance by road (meters)") +
+  theme_void()
+
+map_iph_isometric
+```
+
+
+## Isochrone (equal travel time) from Victoria House by car
+### Calculate
+```{r}
+isochrone_iph <- osrmIsochrone(loc = coords_victoria_house,
+                               breaks = c(10,20),
+                               osrm.profile = "car"
+                               )
+```
+
+
+# Map
+```{r}
+# I'd like the distances to display on the legend as two discrete values, so factorise them
+iso_2_map <- isochrone_iph %>% 
+  mutate(max = factor(max))
+
+map_iph_isochrone <- ggplot(iso_2_map) +
+  annotation_map_tile("cartolight") +
+  geom_sf(aes(geometry = geometry, fill = max),alpha = 0.1) +
+  
+  scale_fill_discrete(name = "Travel time by car (minutes)") +
+  
+  theme_void()
+
+map_iph_isochrone
+```
+
+
 
 
 
